@@ -3,7 +3,7 @@
 
 This project retrieves a list of purchased movies and TV shows from the Vudu website. It uses Selenium to automate browser interactions and BeautifulSoup to parse the HTML content.
 
-Vudu is a great service, but the web interface leaves something to be desired.  There is no search that searches only your purchased content, no way to jump to a position in the list (e.g. jump to movies starting with S).
+Vudu is a great service, but the web interface leaves something to be desired.  There is no search functionality for only your purchased content, and no way to jump to a position in the list (e.g. jump to movies starting with S).  Scrolling through the list is slow because it only loads a few titles at a time.
 
 ## Requirements
 
@@ -18,8 +18,8 @@ Vudu is a great service, but the web interface leaves something to be desired.  
 1. Clone the repository:
 
     ```bash
-    git clone <repository-url>
-    cd <repository-directory>
+    git clone https://github.com/InsolentFlunkey/vudu-library-list.git
+    cd vudu-library-list
     ```
 
 2. Create your environment
@@ -57,15 +57,15 @@ Vudu is a great service, but the web interface leaves something to be desired.  
    1. Poetry
 
         ```bash
-        poetry run python vudu_library_list.py
+        poetry run python vudu_library_list/vudu_library_list.py
         #   --or--
         poetry shell 
-        python vudu_library_list.py
+        python vudu_library_list/vudu_library_list.py
         ```
     2. venv
         ```bash
         #  Activate virtual environment if necessary
-        python vudu_library_list.py
+        python vudu_library_list/vudu_library_list.py
         ```
 
 
