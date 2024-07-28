@@ -60,7 +60,9 @@ Vudu is a great service, but the web interface leaves something to be desired.  
         cd vudu_library_list
         poetry run python vudu_library_list.py
         ```
-           -- or using Poetry shell --
+
+        -- or using Poetry shell --
+
         ```bash
         poetry shell 
         cd vudu_library_list
@@ -85,6 +87,11 @@ Logs are saved to `logs/vudu_library_list.log` file.
 ## Error Handling
 
 If the script encounters an error during execution, it captures the page source for debugging purposes and logs the error details.
+
+## Planned Updates
+
+1. Expand Bundle Collections to retrieve included item titles.
+2. Add a display method for the retrieved lists, perhaps with Streamlit or Flask.  Suggestions?
 
 ## License
 
