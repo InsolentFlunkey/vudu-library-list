@@ -3,7 +3,7 @@
 
 This project retrieves a list of purchased movies and TV shows from the Vudu website. It uses Selenium to automate browser interactions and BeautifulSoup to parse the HTML content.
 
-Vudu is a great service, but the web interface leaves something to be desired.  There is no search functionality for only your purchased content, and no way to jump to a position in the list (e.g. jump to movies starting with S).  Scrolling through the list is slow because it only loads a few titles at a time.
+Vudu is a great service, but the web interface leaves something to be desired.  There is no way to search only your purchased content, and no way to jump to a position in the list (e.g. jump to movies starting with S).  Scrolling through the list is slow because it only loads a few titles at a time.
 
 ## Requirements
 
@@ -44,7 +44,7 @@ Vudu is a great service, but the web interface leaves something to be desired.  
             pip install -r requirements.txt
             ```
 
-3. Rename the `sample_creds.py` file to `creds.py` and update with your Vudu login credentials:
+3. Rename the `vudu_library_list/sample_creds.py` file to `vudu_library_list/creds.py` and update with your Vudu login credentials:
 
     ```python
     VUDU_LOGIN = 'your_email@example.com'
@@ -57,23 +57,28 @@ Vudu is a great service, but the web interface leaves something to be desired.  
    1. Poetry
 
         ```bash
-        poetry run python vudu_library_list/vudu_library_list.py
-        #   --or--
+        cd vudu_library_list
+        poetry run python vudu_library_list.py
+        ```
+           -- or using Poetry shell --
+        ```bash
         poetry shell 
-        python vudu_library_list/vudu_library_list.py
+        cd vudu_library_list
+        python vudu_library_list.py
         ```
     2. venv
         ```bash
         #  Activate virtual environment if necessary
-        python vudu_library_list/vudu_library_list.py
+        cd vudu_library_list
+        python vudu_library_list.py
         ```
 
 
-2. The script will log in to Vudu, navigate to the "My Movies" and "My TV" pages, and retrieve the list of purchased content. The movies and TV shows will be saved to separate JSON files named `vudu_movies.json` and `vudu_tv_shows.json`.
+2. The script will log in to Vudu, navigate to the "My Movies" and "My TV" pages, and retrieve the list of purchased content. The movies and TV shows will be saved to separate JSON files named `lists/vudu_movies.json` and `lists/vudu_tv_shows.json`.  (NOTE: output directory name is configurable in the `constants.py` file.)
 
 ## Logging
 
-Logs are saved to `vudu_library_list.log` file.
+Logs are saved to `logs/vudu_library_list.log` file.
 
 ## Error Handling
 

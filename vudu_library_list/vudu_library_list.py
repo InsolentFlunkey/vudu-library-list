@@ -4,6 +4,7 @@ import json
 import logging
 
 from bs4 import BeautifulSoup
+from pathlib import Path
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service as ChromeService
 from selenium.webdriver.common.action_chains import ActionChains
@@ -14,16 +15,26 @@ from selenium.webdriver.support import expected_conditions as EC
 from webdriver_manager.chrome import ChromeDriverManager
 
 import constants
-import creds
+try:
+    import creds
+except ImportError:
+    raise ImportError("You must copy 'sample_creds.py' to 'creds.py' and update with your VUDU_LOGIN and VUDU_PASSWD")
+
+#  Define log directory and output directory, and create them if they don't exist
+log_dir = Path(__file__).resolve().parent.joinpath(constants.LOG_DIR)
+output_dir = Path(__file__).resolve().parent.joinpath(constants.OUTPUT_DIR)
+
+for directory in [log_dir, output_dir]:
+    Path(directory).mkdir(exist_ok=True)
 
 # Set up logging
+logging_level = getattr(logging, constants.LOGGING_LEVEL.upper(), logging.DEBUG)
 logging.basicConfig(
-    filename='vudu_library_list.log',
+    filename = f'{log_dir}/{constants.LOG_FILE}',
     filemode='a',  # Append to the log file
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    level=logging.DEBUG
+    level=logging_level
 )
-
 logger = logging.getLogger(__name__)
 
 # Set up the Selenium WebDriver for Chrome
@@ -71,7 +82,7 @@ def simulate_keyboard_navigation(driver):
     wait = WebDriverWait(driver, 10)
     
     try:
-        # Find an element to start from
+        # Find the first movie element to start the keyboard navigation
         start_element = wait.until(
             EC.presence_of_element_located(
                 (By.CSS_SELECTOR, f'{constants.MOVIE_ELEMENT}.{constants.MOVIE_ELEMENT_CLASS}')
@@ -80,7 +91,7 @@ def simulate_keyboard_navigation(driver):
         logger.debug("Found start element for keyboard navigation")
     except Exception as e:
         # Capture page source for debugging
-        with open('error_page_source_fn-skn.html', 'w', encoding='utf-8') as f:
+        with open(f'{log_dir}/error_page_source_fn-skn.html', 'w', encoding='utf-8') as f:
             f.write(driver.page_source)
         logger.error("Error finding start element", exc_info=True)
         raise e
@@ -93,9 +104,9 @@ def simulate_keyboard_navigation(driver):
     previous_count = 0
     attempts = 0
     
-    while attempts < 4:  # Try up to 4 times to scroll and load new content
+    while attempts < 3:  # Try up to 4 times to scroll and load new content
         for _ in range(10):  
-            # Num of down-arrow actions before reading new movie cards. Adjust as needed
+            # Number of down-arrow actions before reading new movie cards. Adjust as needed
             actions.send_keys(Keys.ARROW_DOWN).perform()
             time.sleep(random.uniform(0.1, 0.2))  # Random wait to mimic human behavior
 
@@ -140,7 +151,7 @@ def get_purchased_content(url):
         )
     except Exception:
         # Capture page source for debugging
-        with open(f'error_page_source_fn-gpc-{url.split("/")[-1]}.html', 'w', encoding='utf-8') as f:
+        with open(f'{log_dir}/error_page_source_fn-gpc-{url.split("/")[-1]}.html', 'w', encoding='utf-8') as f:
             f.write(driver.page_source)
         logger.error(f"Error navigating to {url}", exc_info=True)
         raise
@@ -171,9 +182,9 @@ def main():
         logger.debug(movies)
         logger.debug(tv_shows)
         
-        with open('vudu_movies.json', 'w') as f:
+        with open(f'{output_dir}/{constants.MOVIE_LIST_FILE}', 'w') as f:
             f.write(json.dumps(movies, indent=4))
-        with open('vudu_tv_shows.json', 'w') as f:
+        with open(f'{output_dir}/{constants.TV_LIST_FILE}', 'w') as f:
             f.write(json.dumps(tv_shows, indent=4))
     except Exception:
         logger.critical("Critical error in main execution", exc_info=True)

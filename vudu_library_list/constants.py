@@ -1,3 +1,7 @@
+#  Logging level
+#    NOTE: If set to DEBUG, you will see very large Selenium log messages.  Remember to clean up your log files!
+LOGGING_LEVEL = "INFO"  #  ["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]
+
 #  URLs
 VUDU_MAIN_URL = 'https://www.vudu.com'
 VUDU_MYMOVIES_URL = 'https://www.vudu.com/content/movies/mymovies'
@@ -7,3 +11,10 @@ VUDU_MYTV_URL = 'https://www.vudu.com/content/movies/mytv'
 SIGN_IN_ELEMENT = 'button[aria-label="Sign In"]'
 MOVIE_ELEMENT = 'div'
 MOVIE_ELEMENT_CLASS = 'contentPosterWrapper'
+
+#  File locations
+LOG_DIR = 'logs'
+LOG_FILE = 'vudu_library_list.log'
+OUTPUT_DIR = 'lists'
+MOVIE_LIST_FILE = 'vudu_movies.json'
+TV_LIST_FILE = 'vudu_tv_shows.json'
