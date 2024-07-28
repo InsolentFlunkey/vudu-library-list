@@ -2,6 +2,7 @@ import time
 import random
 import json
 import logging
+import sys
 
 from bs4 import BeautifulSoup
 from pathlib import Path
@@ -17,8 +18,9 @@ from webdriver_manager.chrome import ChromeDriverManager
 import constants
 try:
     import creds
-except ImportError:
-    raise ImportError("You must copy 'sample_creds.py' to 'creds.py' and update with your VUDU_LOGIN and VUDU_PASSWD")
+except ModuleNotFoundError:
+    print("\n\nYou must copy 'sample_creds.py' to 'creds.py' and update with your VUDU_LOGIN and VUDU_PASSWD\n\n")
+    sys.exit(1)
 
 #  Define log directory and output directory, and create them if they don't exist
 log_dir = Path(__file__).resolve().parent.joinpath(constants.LOG_DIR)
