@@ -1,0 +1,31 @@
+#  Project files
+creds.py
+error_page*
+lists/*
+old/*
+*.log
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg
+*.egg-info/
+dist/
+build/
+
+# Virtual Environments
+.env
+.venv
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Poetry
+poetry.lock
+
+# Miscellaneous
+.DS_Store
+.idea/
+.vscode/
+*.code-workspace
