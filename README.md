@@ -76,6 +76,8 @@ Vudu is a great service, but the web interface leaves something to be desired.  
 
 2. The script will log in to Vudu, navigate to the "My Movies" and "My TV" pages, and retrieve the list of purchased content. The movies and TV shows will be saved to separate JSON files named `lists/vudu_movies.json` and `lists/vudu_tv_shows.json`.  (NOTE: output directory name is configurable in the `constants.py` file.)
 
+_**Caution**_: The Vudu website does not load properly in headless mode, so the script must launch an instance of Chrome in windowed mode.  Interacting with the browser window may interfere with retrieving the content lists.  The Chrome window will close automatically at the end of the run.
+
 ## Logging
 
 Logs are saved to `logs/vudu_library_list.log` file.
