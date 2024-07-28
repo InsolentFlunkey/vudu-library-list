@@ -1,0 +1,17 @@
+[tool.poetry]
+name = "vudu-library-list"
+version = "0.1.0"
+description = "This project retrieves a list of purchased movies and TV shows from the Vudu website."
+authors = ["Bryan Keary"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+selenium = "^4.23.1"
+beautifulsoup4 = "^4.12.3"
+webdriver-manager = "^4.0.2"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
