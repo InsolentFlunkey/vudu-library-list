@@ -1,6 +1,8 @@
-#  Logging level
-#    NOTE: If set to DEBUG, you will see very large Selenium log messages.  Remember to clean up your log files!
-LOGGING_LEVEL = "INFO"  #  ["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]
+#  Logging level - ["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]
+#    NOTE: Log file appends, so it will grow with every execution.  You also may see large Selenium log messages.
+#          Remember to clean up your log files!
+LOGGING_LEVEL_FILE = "INFO"
+LOGGING_LEVEL_CONSOLE = "INFO"
 
 #  URLs
 VUDU_MAIN_URL = 'https://www.vudu.com'

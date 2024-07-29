@@ -29,15 +29,30 @@ output_dir = Path(__file__).resolve().parent.joinpath(constants.OUTPUT_DIR)
 for directory in [log_dir, output_dir]:
     Path(directory).mkdir(exist_ok=True)
 
-# Set up logging
-logging_level = getattr(logging, constants.LOGGING_LEVEL.upper(), logging.DEBUG)
-logging.basicConfig(
-    filename = f'{log_dir}/{constants.LOG_FILE}',
-    filemode='a',  # Append to the log file
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    level=logging_level
-)
+#region Set up logging
+logging_level_file = getattr(logging, constants.LOGGING_LEVEL_FILE.upper(), logging.DEBUG)
+logging_level_console = getattr(logging, constants.LOGGING_LEVEL_CONSOLE.upper(), logging.INFO)
+
+# Create a custom logger
 logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)  # Capture all logs, handlers will filter levels
+
+# Create handlers
+file_handler = logging.FileHandler(f'{log_dir}/{constants.LOG_FILE}')
+file_handler.setLevel(logging_level_file)
+
+console_handler = logging.StreamHandler(sys.stdout)
+console_handler.setLevel(logging_level_console)
+
+# Create formatters and add them to handlers
+formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+file_handler.setFormatter(formatter)
+console_handler.setFormatter(formatter)
+
+# Add handlers to the logger
+logger.addHandler(file_handler)
+logger.addHandler(console_handler)
+#endregion logging setup
 
 # Set up the Selenium WebDriver for Chrome
 options = webdriver.ChromeOptions()
@@ -124,7 +139,7 @@ def simulate_keyboard_navigation(driver):
                 loaded_items.add(position)
 
         current_count = len(loaded_items)
-        logger.debug(f'Loaded items: {current_count}')  # Debug statement
+        logger.info(f'Loaded items: {current_count}')  # Debug statement
         
         if current_count > previous_count:
             attempts = 0  # Reset attempts if new content is loaded
@@ -174,16 +189,18 @@ def custom_sort(title):
 def main():
     try:
         login_to_vudu(creds.VUDU_LOGIN, creds.VUDU_PASSWD)
+        
+        #  Retrieve movie list
         movies = get_purchased_content(constants.VUDU_MYMOVIES_URL)
-        tv_shows = get_purchased_content(constants.VUDU_MYTV_URL)
-        
-        # Sort the movies and tv shows using the custom sort function
         movies.sort(key=custom_sort)
+        logger.debug(f'Movies: {movies}')
+        
+        #  Retrieve TV show list
+        tv_shows = get_purchased_content(constants.VUDU_MYTV_URL)
         tv_shows.sort(key=custom_sort)
+        logger.debug(f'TV Shows: {tv_shows}')
         
-        logger.debug(movies)
-        logger.debug(tv_shows)
-        
+        #  Write the lists to JSON files
         with open(f'{output_dir}/{constants.MOVIE_LIST_FILE}', 'w') as f:
             f.write(json.dumps(movies, indent=4))
         with open(f'{output_dir}/{constants.TV_LIST_FILE}', 'w') as f:
