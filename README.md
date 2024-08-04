@@ -7,7 +7,7 @@ Vudu is a great service, but the web interface leaves something to be desired.  
 
 ## Requirements
 
-- Python 3.x (Developed with Python 3.12)
+- Python ^3.10
 - Selenium
 - BeautifulSoup4
 - Webdriver Manager
