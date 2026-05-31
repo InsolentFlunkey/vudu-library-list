@@ -22,29 +22,19 @@ Vudu is a great service, but the web interface leaves something to be desired.  
     cd vudu-library-list
     ```
 
-2. Create your environment
-   1. Using Poetry (recommended)
-      1. Install Poetry if you haven't already:
-          ```bash
-          pip install poetry
-          ```
-      2. Install the project dependencies:
-          ```bash
-          poetry install
-          ```
-    2. Using venv and requirements.txt
-       1. Create a virtual environment and activate it:
-            ```bash
-            python -m venv venv
-            source venv/bin/activate #  Linux
-            venv\Scripts\activate #  Windows
-            ```
-        2. Install the required packages:
-            ```bash
-            pip install -r requirements.txt
-            ```
+2. Install uv if you haven't already:
 
-3. Rename the `vudu_library_list/sample_creds.py` file to `vudu_library_list/creds.py` and update with your Vudu login credentials:
+    ```bash
+    pip install uv
+    ```
+
+3. Create the virtual environment and install dependencies:
+
+    ```bash
+    uv sync
+    ```
+
+4. Rename the `vudu_library_list/sample_creds.py` file to `vudu_library_list/creds.py` and update with your Vudu login credentials:
 
     ```python
     VUDU_LOGIN = 'your_email@example.com'
@@ -54,26 +44,10 @@ Vudu is a great service, but the web interface leaves something to be desired.  
 ## Usage
 
 1. Run the script:
-   1. Poetry
 
-        ```bash
-        cd vudu_library_list
-        poetry run python vudu_library_list.py
-        ```
-
-        -- or using Poetry shell --
-
-        ```bash
-        poetry shell 
-        cd vudu_library_list
-        python vudu_library_list.py
-        ```
-    2. venv
-        ```bash
-        #  Activate virtual environment if necessary
-        cd vudu_library_list
-        python vudu_library_list.py
-        ```
+    ```bash
+    uv run python vudu_library_list/vudu_library_list.py
+    ```
 
 
 2. The script will log in to Vudu, navigate to the "My Movies" and "My TV" pages, and retrieve the list of purchased content. The movies and TV shows will be saved to separate JSON files named `lists/vudu_movies.json` and `lists/vudu_tv_shows.json`.  (NOTE: output directory name is configurable in the `constants.py` file.)

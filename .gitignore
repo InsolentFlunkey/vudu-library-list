@@ -21,9 +21,6 @@ ENV/
 env.bak/
 venv.bak/
 
-# Poetry
-poetry.lock
-
 # Miscellaneous
 .DS_Store
 .idea/
