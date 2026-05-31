@@ -94,7 +94,7 @@ def login_to_vudu(email, password):
         time.sleep(random.uniform(5, 6))  # Random wait
         logger.info("Logged into Vudu successfully")
     except Exception:
-        logger.error("Error during login", exc_info=True)
+        logger.exception("Error during login")
         raise
 
 
@@ -114,7 +114,7 @@ def simulate_keyboard_navigation(driver):
         # Capture page source for debugging
         with open(f'{log_dir}/error_page_source_fn-skn.html', 'w', encoding='utf-8') as f:
             f.write(driver.page_source)
-        logger.error("Error finding start element", exc_info=True)
+        logger.exception("Error finding start element")
         raise e
     
     # Focus on the element without clicking
@@ -174,10 +174,10 @@ def get_purchased_content(url):
         # Capture page source for debugging
         with open(f'{log_dir}/error_page_source_fn-gpc-{url.split("/")[-1]}.html', 'w', encoding='utf-8') as f:
             f.write(driver.page_source)
-        logger.error(f"Error navigating to {url}", exc_info=True)
+        logger.exception(f"Error navigating to {url}")
         raise
     loaded_items = simulate_keyboard_navigation(driver)
-    content = list(set(title for _, title in loaded_items))
+    content = list({title for _, title in loaded_items})
     logger.info(f'Retrieved {len(content)} items from {url}')
     return content
 
