@@ -3,6 +3,7 @@ import random
 import json
 import logging
 import sys
+from getpass import getpass
 
 from bs4 import BeautifulSoup
 from pathlib import Path
@@ -19,7 +20,7 @@ import constants
 try:
     import creds
 except ModuleNotFoundError:
-    print("\n\nYou must copy 'sample_creds.py' to 'creds.py' and update with your VUDU_LOGIN and VUDU_PASSWD\n\n")
+    print("\n\nYou must copy 'sample_creds.py' to 'creds.py' and update with your Vudu credentials\n\n")
     sys.exit(1)
 
 #  Define log directory and output directory, and create them if they don't exist
@@ -54,18 +55,21 @@ logger.addHandler(file_handler)
 logger.addHandler(console_handler)
 #endregion logging setup
 
-# Set up the Selenium WebDriver for Chrome
-options = webdriver.ChromeOptions()
-options.add_argument('--disable-blink-features=AutomationControlled')  # Prevent detection as a bot
-options.add_argument('--disable-gpu')  # Disable GPU acceleration
-options.add_argument('--window-size=1920,1080')  # Set window size
-options.add_argument('--no-sandbox')  # Bypass OS security model
-options.add_argument('--disable-dev-shm-usage')  # Overcome limited resource problems
-options.add_argument('--disable-webgl')  # Disable WebGL
-options.add_argument('--disable-usb')  # Disable USB
-driver = webdriver.Chrome(
-    service=ChromeService(ChromeDriverManager().install()), options=options
-)
+driver = None
+
+
+def create_chrome_driver():
+    options = webdriver.ChromeOptions()
+    options.add_argument('--disable-blink-features=AutomationControlled')  # Prevent detection as a bot
+    options.add_argument('--disable-gpu')  # Disable GPU acceleration
+    options.add_argument('--window-size=1920,1080')  # Set window size
+    options.add_argument('--no-sandbox')  # Bypass OS security model
+    options.add_argument('--disable-dev-shm-usage')  # Overcome limited resource problems
+    options.add_argument('--disable-webgl')  # Disable WebGL
+    options.add_argument('--disable-usb')  # Disable USB
+    return webdriver.Chrome(
+        service=ChromeService(ChromeDriverManager().install()), options=options
+    )
 
 
 def login_to_vudu(email, password):
@@ -186,9 +190,25 @@ def custom_sort(title):
     return title
 
 
+def get_vudu_password():
+    input_method = getattr(creds, "VUDU_PASSWD_INPUT_METHOD", 1)
+
+    if input_method == 0:
+        return getpass("Vudu password: ")
+
+    if input_method == 1:
+        return creds.VUDU_PASSWD
+
+    raise ValueError("VUDU_PASSWD_INPUT_METHOD must be 0 for prompted or 1 for hardcoded")
+
+
 def main():
+    global driver
+
     try:
-        login_to_vudu(creds.VUDU_LOGIN, creds.VUDU_PASSWD)
+        password = get_vudu_password()
+        driver = create_chrome_driver()
+        login_to_vudu(creds.VUDU_LOGIN, password)
         
         #  Retrieve movie list
         movies = get_purchased_content(constants.VUDU_MYMOVIES_URL)
@@ -208,7 +228,8 @@ def main():
     except Exception:
         logger.critical("Critical error in main execution", exc_info=True)
     finally:
-        driver.quit()
+        if driver is not None:
+            driver.quit()
         logger.info("Closed the browser and ended the session")
 
 
