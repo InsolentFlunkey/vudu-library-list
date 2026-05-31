@@ -5,12 +5,15 @@ LOGGING_LEVEL_FILE = "INFO"
 LOGGING_LEVEL_CONSOLE = "INFO"
 
 #  URLs
-VUDU_MAIN_URL = 'https://www.vudu.com'
-VUDU_MYMOVIES_URL = 'https://www.vudu.com/content/movies/mymovies'
-VUDU_MYTV_URL = 'https://www.vudu.com/content/movies/mytv'
+VUDU_MAIN_URL = 'https://athome.fandango.com'
+VUDU_LOGIN_URL = 'https://athome.fandango.com/content/account/login'
+VUDU_MYMOVIES_URL = 'https://athome.fandango.com/content/movies/mymovies'
+VUDU_MYTV_URL = 'https://athome.fandango.com/content/movies/mytv'
 
 #  CSS Selectors
 SIGN_IN_ELEMENT = 'button[aria-label="Sign In"]'
+EMAIL_ELEMENT = 'input#email, input[name="email"], input[type="email"]'
+PASSWORD_ELEMENT = 'input#password, input[name="password"], input[type="password"]'
 MOVIE_ELEMENT = 'div'
 MOVIE_ELEMENT_CLASS = 'contentPosterWrapper'
 

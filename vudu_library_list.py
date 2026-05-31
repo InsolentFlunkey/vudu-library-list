@@ -74,26 +74,29 @@ def create_chrome_driver():
 
 def login_to_vudu(email, password):
     try:
-        driver.get(constants.VUDU_MAIN_URL)
-        logger.info("Navigated to Vudu main page")
+        driver.get(constants.VUDU_LOGIN_URL)
+        logger.info("Navigated to Vudu login page")
 
-        # Find and click the login button
         wait = WebDriverWait(driver, 10)
-        sign_in_button = wait.until(
-            EC.presence_of_element_located((By.CSS_SELECTOR, constants.SIGN_IN_ELEMENT))
-        )
-        sign_in_button.click()
-        time.sleep(random.uniform(2, 3))  # Random wait
 
         # Enter email and password
-        email_input = driver.find_element(By.ID, 'email')
+        email_input = wait.until(
+            EC.visibility_of_element_located((By.CSS_SELECTOR, constants.EMAIL_ELEMENT))
+        )
+        email_input.clear()
         email_input.send_keys(email)
-        password_input = driver.find_element(By.ID, 'password')
+
+        password_input = wait.until(
+            EC.visibility_of_element_located((By.CSS_SELECTOR, constants.PASSWORD_ELEMENT))
+        )
+        password_input.clear()
         password_input.send_keys(password)
         password_input.send_keys(Keys.RETURN)
         time.sleep(random.uniform(5, 6))  # Random wait
         logger.info("Logged into Vudu successfully")
     except Exception:
+        with open(f'{log_dir}/error_page_source_fn-login.html', 'w', encoding='utf-8') as f:
+            f.write(driver.page_source)
         logger.exception("Error during login")
         raise
 
