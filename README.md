@@ -34,7 +34,7 @@ Vudu is a great service, but the web interface leaves something to be desired.  
     uv sync
     ```
 
-4. Rename the `vudu_library_list/sample_creds.py` file to `vudu_library_list/creds.py` and update with your Vudu login credentials:
+4. Rename the `sample_creds.py` file to `creds.py` and update with your Vudu login credentials:
 
     ```python
     VUDU_LOGIN = 'your_email@example.com'
@@ -46,7 +46,7 @@ Vudu is a great service, but the web interface leaves something to be desired.  
 1. Run the script:
 
     ```bash
-    uv run python vudu_library_list/vudu_library_list.py
+    uv run python vudu_library_list.py
     ```
 
 

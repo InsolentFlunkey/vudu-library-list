@@ -1,8 +1,10 @@
 #  Project files
 creds.py
 error_page*
+lists/*
 */lists/*
 old/*
+logs/*
 */logs/*
 
 # Python
