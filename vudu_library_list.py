@@ -62,6 +62,7 @@ logger.addHandler(console_handler)
 driver = None
 YEAR_PATTERN = re.compile(r'\b(?:19|20)\d{2}\b')
 FORMAT_PATTERN = re.compile(r'\b(?:4K UHD|UHD|HDX|HD|SD)\b', re.IGNORECASE)
+SEASON_PATTERN = re.compile(r'\bSeason\s+(\d{1,2})\b', re.IGNORECASE)
 metadata_debug_count = 0
 MAX_METADATA_DEBUG_FILES = 10
 
@@ -505,6 +506,135 @@ def get_purchased_content(url):
     return content
 
 
+def get_detail_page_counts():
+    return driver.execute_script(
+        """
+        const detailLinks = Array.from(document.querySelectorAll('a[href*="/content/browse/details/"]'))
+            .filter((link) => link.querySelector('img[alt]'))
+            .length;
+        const bodyText = document.body?.innerText || '';
+        const seasonMatches = bodyText.match(/\\bSeason\\s+\\d{1,2}\\b/gi) || [];
+
+        return {
+            detailLinks,
+            seasonMatches: seasonMatches.length,
+            textLength: bodyText.length,
+        };
+        """
+    )
+
+
+def wait_for_detail_page():
+    wait = WebDriverWait(driver, 10)
+    wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, "body")))
+
+    stable_count = 0
+    previous_counts = None
+    deadline = time.time() + 8
+
+    while time.time() < deadline:
+        counts = get_detail_page_counts()
+        if counts == previous_counts and counts["textLength"] > 0:
+            stable_count += 1
+            if stable_count >= 3:
+                return
+        else:
+            stable_count = 0
+            previous_counts = counts
+
+        time.sleep(0.5)
+
+
+def get_detail_page_soup(url):
+    driver.get(url)
+    wait_for_detail_page()
+    return BeautifulSoup(driver.page_source, 'html.parser')
+
+
+def normalize_content_url(url):
+    return url.split("?")[0].rstrip("/") if url else None
+
+
+def clean_detail_title(value):
+    return re.sub(r'\s+poster$', '', clean_text(value), flags=re.IGNORECASE)
+
+
+def extract_detail_page_content_items(soup, current_item):
+    current_url = normalize_content_url(current_item.get("content_url"))
+    items = {}
+
+    for link_tag in soup.find_all("a", href=True):
+        href = link_tag["href"]
+        if "/content/browse/details/" not in href:
+            continue
+
+        img_tag = link_tag.find("img", alt=True)
+        if not img_tag:
+            continue
+
+        content_url = normalize_content_url(urljoin(constants.VUDU_MAIN_URL, href))
+        if content_url == current_url:
+            continue
+
+        title = clean_detail_title(img_tag["alt"])
+        if not title or title == current_item["title"]:
+            continue
+
+        items[content_url] = {
+            "title": title,
+            "content_url": content_url,
+            "poster_url": urljoin(constants.VUDU_MAIN_URL, img_tag["src"]) if img_tag.get("src") else None,
+        }
+
+    return list(items.values())
+
+
+def enrich_movie_bundles(movies):
+    bundle_movies = [
+        movie for movie in movies
+        if "bundle" in movie["title"].lower() and movie.get("content_url")
+    ]
+
+    logger.info(f'Enriching {len(bundle_movies)} movie bundles')
+
+    for movie in bundle_movies:
+        try:
+            soup = get_detail_page_soup(movie["content_url"])
+            movie["bundle_titles"] = extract_detail_page_content_items(soup, movie)
+            movie["bundle_title_count"] = len(movie["bundle_titles"])
+            logger.info(f'Retrieved {movie["bundle_title_count"]} bundle titles for {movie["title"]}')
+        except Exception:
+            movie["bundle_titles"] = []
+            movie["bundle_title_count"] = 0
+            logger.exception(f'Error retrieving bundle titles for {movie["title"]}')
+
+
+def extract_tv_seasons(soup):
+    page_text = soup.get_text(" ", strip=True)
+    season_numbers = sorted({int(match) for match in SEASON_PATTERN.findall(page_text)})
+    return season_numbers
+
+
+def enrich_tv_seasons(tv_shows):
+    logger.info(f'Enriching season counts for {len(tv_shows)} TV titles')
+
+    for tv_show in tv_shows:
+        tv_show["owned_seasons"] = []
+        tv_show["season_count"] = None
+
+        if not tv_show.get("content_url"):
+            continue
+
+        try:
+            soup = get_detail_page_soup(tv_show["content_url"])
+            owned_seasons = extract_tv_seasons(soup)
+            tv_show["owned_seasons"] = owned_seasons
+            tv_show["season_count"] = len(owned_seasons) if owned_seasons else None
+            logger.info(f'Retrieved {tv_show["season_count"] or 0} seasons for {tv_show["title"]}')
+        except Exception:
+            logger.exception(f'Error retrieving seasons for {tv_show["title"]}')
+
+
 def custom_sort(item):
     title = item["title"]
     articles = ["A ", "An ", "The "]
@@ -537,11 +667,13 @@ def main():
         #  Retrieve movie list
         movies = get_purchased_content(constants.VUDU_MYMOVIES_URL)
         movies.sort(key=custom_sort)
+        enrich_movie_bundles(movies)
         logger.debug(f'Movies: {movies}')
         
         #  Retrieve TV show list
         tv_shows = get_purchased_content(constants.VUDU_MYTV_URL)
         tv_shows.sort(key=custom_sort)
+        enrich_tv_seasons(tv_shows)
         logger.debug(f'TV Shows: {tv_shows}')
         
         #  Write the lists to JSON files
