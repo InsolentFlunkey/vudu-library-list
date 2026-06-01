@@ -52,6 +52,8 @@ Vudu is a great service, but the web interface leaves something to be desired.  
 
 2. The script will log in to Vudu, navigate to the "My Movies" and "My TV" pages, and retrieve the list of purchased content. The movies and TV shows will be saved to separate JSON files named `lists/vudu_movies.json` and `lists/vudu_tv_shows.json`. Each item includes the title plus any year, owned format, detail URL, and poster URL that Fandango exposes in the card markup. Movie bundles also include any bundled titles found on the detail page, and TV titles include season numbers when Fandango exposes them. (NOTE: output directory name is configurable in the `constants.py` file.)
 
+    NOTE: TV season counts are based on normal `Season N` entries on the detail page. Some TV titles are not listed that way by Fandango, so those entries may show no seasons even when the title is owned.
+
 _**Caution**_: The Vudu website does not load properly in headless mode, so the script must launch an instance of Chrome in windowed mode.  Interacting with the browser window may interfere with retrieving the content lists.  The Chrome window will close automatically at the end of the run.
 
 ## Logging
